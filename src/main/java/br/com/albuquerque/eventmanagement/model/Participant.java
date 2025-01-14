@@ -1,55 +1,37 @@
 package br.com.albuquerque.eventmanagement.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "participant")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString(exclude = "events")
+@EqualsAndHashCode(of = "id")
 public class Participant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank(message = "Name cannot be blank")
+    @Column(nullable = false)
     private String name;
+
+    @Email(message = "Email must be valid")
+    @NotBlank(message = "Email cannot be blank")
+    @Column(nullable = false, unique = true)
     private String email;
-    @ManyToMany(mappedBy = "participants")
-    private List<Event> events;
 
-    public Participant() {
-    }
-
-    public Participant(String name, String email, List<Event> events) {
-        this.name = name;
-        this.email = email;
-        this.events = events;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public List<Event> getEvents() {
-        return events;
-    }
-
-    public void setEvents(List<Event> events) {
-        this.events = events;
-    }
+    @JsonIgnore
+    @ManyToMany(mappedBy = "participants", fetch = FetchType.LAZY)
+    private Set<Event> events;
 }
